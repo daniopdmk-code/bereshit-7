@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The City Is Lighting Up — BERESHIT 7</title>
+<meta name="description" content="Calgary, neighbourhood by neighbourhood, as people commit to come to BERESHIT 7 — January 4–10, 2027.">
+<meta name="theme-color" content="#0C0C0C">
+<link rel="icon" href="flamme.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
+<style>
+:root{--jet:#0C0C0C;--graphite:#151414;--bord:#2a2727;--crimson:#ED3237;--frost:#F5F6F1;--cendre:#B1AFAA;
+  --titre:'Exo 2','Helvetica Neue',Arial,sans-serif;--courant:'Montserrat','Helvetica Neue',Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--jet);color:var(--frost);font-family:var(--courant);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+main{max-width:860px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right)) 64px max(16px,env(safe-area-inset-left))}
+h1{font-family:var(--titre);font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:clamp(20px,5vw,30px);margin:0;text-wrap:balance}
+.sous{margin:6px 0 0;color:var(--cendre);font-size:13px;letter-spacing:.06em}
+.tete{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
+.compte{display:flex;gap:22px;font-variant-numeric:tabular-nums}
+.compte div{text-align:right}.compte b{display:block;font-family:var(--titre);font-weight:800;font-size:clamp(28px,7vw,40px);line-height:1}
+.compte span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--cendre)}
+.cadre{position:relative;border:1px solid var(--bord);border-radius:14px;overflow:hidden;background:var(--jet)}
+canvas#carte{display:block;width:100%;height:auto}
+.etat{min-height:1.4em;margin:10px 2px 0;font-size:13px;color:var(--cendre)}
+.barre{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:999px;border:1px solid #3a3636;
+  background:var(--graphite);color:var(--frost);font-family:var(--titre);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;text-decoration:none}
+.btn.plein{background:var(--frost);color:var(--jet);border-color:var(--frost)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
+.top{margin-top:30px}.top h2{font-family:var(--titre);font-size:12px;letter-spacing:.22em;color:var(--cendre);margin:0 0 10px;text-transform:uppercase}
+.top ol{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 18px}
+.top li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--bord);padding:6px 0;font-size:14px}
+.top li b{font-family:var(--titre);font-variant-numeric:tabular-nums}
+.note{margin-top:28px;color:#8d8b86;font-size:12px}
+.projection main{max-width:none;padding:0}.projection .tete,.projection .barre,.projection .top,.projection .note,.projection .etat{display:none}
+</style>
+</head>
+<body>
+<main>
+  <div class="tete">
+    <div><h1>The city is lighting up</h1><p class="sous">BERESHIT 7 · January 4 — 10, 2027 · Calgary</p></div>
+    <div class="compte"><div><b id="nLum">0</b><span>lights</span></div><div><b id="nQ">0</b><span>neighbourhoods</span></div></div>
+  </div>
+  <div class="cadre" id="cadre"><canvas id="carte" width="1000" height="1290" role="img" aria-label="Map of Calgary's neighbourhoods lighting up as people commit to come"></canvas></div>
+  <p class="etat" id="etat" role="status">Loading the lights…</p>
+  <div class="barre">
+    <a class="btn plein" href="./#light">Light your neighbourhood</a>
+    <button class="btn" id="exp45" type="button">Image 4:5</button>
+    <button class="btn" id="exp916" type="button">Image 9:16</button>
+    <button class="btn" id="projeter" type="button">Full screen</button>
+  </div>
+  <div class="top" id="top" hidden><h2>Brightest neighbourhoods</h2><ol id="topListe"></ol></div>
+  <p class="note">Neighbourhood boundaries: City of Calgary open data. Only the neighbourhood is recorded — never a name or an address. The flame marks Metanoia City Church, 2915 19th Street NE.</p>
+</main>
+<script>
+const CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRqdYNrw2HnPv6xy-unlyQjThFgweyP8Bxrz4kyTdNjmPcLptorRuOv80eLWvUNixzihtlqUfPv1gPY/pub?output=csv';
+let CARTE, parCode, chemins, compte = new Map();
+const img = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+const pFlamme = img('flamme.svg'), pLogo = img('logo.svg');
+/* ---------- le dessin : un seul moteur, pour l'écran et pour l'export ---------- */
+function dessinerCarte(ctx, ox, oy, s, t) {
+  ctx.save(); ctx.translate(ox, oy); ctx.scale(s, s);
+  const max = Math.max(1, ...compte.values());
+  for (const q of CARTE.q) {
+    const p = chemins.get(q.c), n = compte.get(q.c) || 0;
+    if (n) {
+      const f = 0.35 + 0.65 * Math.log1p(n) / Math.log1p(max);
+      ctx.fillStyle = `rgba(237,50,55,${(0.22 + 0.5 * f).toFixed(3)})`;
+    } else ctx.fillStyle = q.k === 'Residential' ? '#151414' : '#100f0f';
+    ctx.fill(p);
+    ctx.lineWidth = 0.7 / s * (s > 1 ? 1 : 1); ctx.strokeStyle = n ? 'rgba(245,246,241,.28)' : '#262323';
+    ctx.stroke(p);
+  }
+  // les halos : une lumière par quartier allumé
+  ctx.globalCompositeOperation = 'lighter';
+  for (const [c, n] of compte) {
+    const q = parCode.get(c); if (!q) continue;
+    const f = Math.log1p(n) / Math.log1p(max);
+    const r = 14 + 46 * f;
+    const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, r);
+    g.addColorStop(0, 'rgba(255,236,214,.95)'); g.addColorStop(.12, 'rgba(255,170,140,.75)');
+    g.addColorStop(.4, 'rgba(237,50,55,.35)'); g.addColorStop(1, 'rgba(237,50,55,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(q.x, q.y, r, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.restore();
+}
+
+function dessinerFlamme(ctx, ox, oy, s, fl, t = 1) {
+  const [ex, ey] = CARTE.eglise, x = ox + ex * s, y = oy + ey * s;
+  s = s * t;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, 60 * s);
+  g.addColorStop(0, 'rgba(237,50,55,.55)'); g.addColorStop(1, 'rgba(237,50,55,0)');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 60 * s, 0, Math.PI * 2); ctx.fill();
+  if (fl) { const h = 46 * s, w = h * 167 / 302; ctx.drawImage(fl, x - w / 2, y - h * .78, w, h); }
+}
+
+async function rendreEcran() {
+  const cv = document.getElementById('carte'), ctx = cv.getContext('2d');
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = cv.clientWidth || 1000, H = Math.round(W * CARTE.h / CARTE.w);
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#0C0C0C'; ctx.fillRect(0, 0, W, H);
+  const s = W / CARTE.w;
+  dessinerCarte(ctx, 0, 0, s);
+  dessinerFlamme(ctx, 0, 0, s, await pFlamme);
+}
+
+/* ---------- l'export : une image à poster ---------- */
+async function rendreExport(L, H) {
+  await document.fonts.ready;
+  const cv = document.createElement('canvas'); cv.width = L; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#0C0C0C'; ctx.fillRect(0, 0, L, H);
+  // trame de la marque
+  ctx.strokeStyle = 'rgba(245,246,241,.045)'; ctx.lineWidth = 1;
+  for (let k = -H; k < L; k += 11) { ctx.beginPath(); ctx.moveTo(k, H); ctx.lineTo(k + H, 0); ctx.stroke(); }
+  const vertical = H / L > 1.5;
+  // en 9:16, l'interface d'un statut couvre ~250 px en haut et en bas
+  const haut = vertical ? 440 : 200, bas = vertical ? 540 : 272;
+  const E = vertical ? {b: 110, l: 40, f: 76, d: 128, t: 170} : {b: 80, l: 34, f: 58, d: 100, t: 136};
+  const zone = H - haut - bas, s = Math.min((L - 80) / CARTE.w, zone / CARTE.h);
+  const ox = (L - CARTE.w * s) / 2, oy = haut + (zone - CARTE.h * s) / 2;
+  dessinerCarte(ctx, ox, oy, s);
+  dessinerFlamme(ctx, ox, oy, s, await pFlamme, 1.6);
+  const logo = await pLogo;
+  if (logo) { const w = 420, h = w * 156 / 641; ctx.drawImage(logo, (L - w) / 2, vertical ? 262 : 56, w, h); }
+  ctx.textAlign = 'center'; ctx.fillStyle = '#F5F6F1';
+  ctx.font = `800 ${vertical ? 34 : 30}px "Exo 2", Arial`;
+  espace(ctx, 'THE CITY IS LIGHTING UP', L / 2, (vertical ? 262 : 56) + 420 * 156 / 641 + 52, 6);
+  const total = [...compte.values()].reduce((a, b) => a + b, 0);
+  ctx.font = `800 ${vertical ? 92 : 78}px "Exo 2", Arial`;
+  const yb = H - bas + E.b;
+  ctx.fillText(String(total), L / 2 - (vertical ? 190 : 170), yb);
+  ctx.fillText(String(compte.size), L / 2 + (vertical ? 190 : 170), yb);
+  ctx.font = `600 ${vertical ? 22 : 20}px Montserrat, Arial`; ctx.fillStyle = '#B1AFAA';
+  espace(ctx, total === 1 ? 'LIGHT' : 'LIGHTS', L / 2 - (vertical ? 190 : 170), yb + E.l, 4);
+  espace(ctx, compte.size === 1 ? 'NEIGHBOURHOOD' : 'NEIGHBOURHOODS', L / 2 + (vertical ? 190 : 170), yb + E.l, 4);
+  ctx.fillStyle = '#ED3237'; ctx.fillRect(L / 2 - 32, yb + E.f, 64, 3);
+  ctx.fillStyle = '#F5F6F1'; ctx.font = `800 ${vertical ? 28 : 24}px "Exo 2", Arial`;
+  espace(ctx, 'JANUARY 4 — 10, 2027 · CALGARY', L / 2, yb + E.d, 4);
+  ctx.fillStyle = '#B1AFAA'; ctx.font = `500 ${vertical ? 22 : 20}px Montserrat, Arial`;
+  espace(ctx, 'Bring someone. Light your neighbourhood.', L / 2, yb + E.t, 1);
+  return new Promise(r => cv.toBlob(r, 'image/png'));
+}
+function espace(ctx, t, x, y, e) {
+  if ('letterSpacing' in ctx) { ctx.letterSpacing = e + 'px'; ctx.fillText(t, x + e / 2, y); ctx.letterSpacing = '0px'; }
+  else ctx.fillText(t, x, y);
+}
+
+
+function lireCSV(t) {
+  const lignes = t.trim().split(/\r?\n/).slice(1), m = new Map();
+  for (const l of lignes) {
+    const c = l.split(','); const q = (c[1] || '').trim().toUpperCase(), n = Math.max(1, Math.min(10, parseInt(c[2], 10) || 1));
+    if (parCode.has(q)) m.set(q, (m.get(q) || 0) + n);
+  }
+  return m;
+}
+function afficher() {
+  const total = [...compte.values()].reduce((a, b) => a + b, 0);
+  document.getElementById('nLum').textContent = total; document.getElementById('nQ').textContent = compte.size;
+  const top = [...compte].sort((a, b) => b[1] - a[1]).slice(0, 12), ol = document.getElementById('topListe');
+  document.getElementById('top').hidden = !top.length; ol.replaceChildren();
+  for (const [c, n] of top) { const li = document.createElement('li'), a = document.createElement('span'), b = document.createElement('b'); a.textContent = parCode.get(c).n; b.textContent = n; li.append(a, b); ol.append(li); }
+  rendreEcran();
+}
+async function charger() {
+  const etat = document.getElementById('etat');
+  try {
+    let r;
+    for (let essai = 0; essai < 4; essai++) {
+      r = await fetch(CSV + '&t=' + Date.now(), {cache: 'no-store'}).catch(() => null);
+      if (r && r.ok) break;
+      await new Promise(f => setTimeout(f, 2500));
+    }
+    if (!r || !r.ok) throw new Error('csv');
+    compte = lireCSV(await r.text());
+    etat.textContent = compte.size ? 'Updated ' + new Date().toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '. New lights can take a few minutes to appear.' : 'The city is still dark. Be the first light.';
+  } catch (e) { etat.textContent = 'The lights could not be loaded right now. Try again in a moment.'; }
+  afficher();
+}
+(async () => {
+  CARTE = await (await fetch('carte.json')).json();
+  parCode = new Map(CARTE.q.map(q => [q.c, q])); chemins = new Map(CARTE.q.map(q => [q.c, new Path2D(q.d)]));
+  rendreEcran(); charger(); setInterval(charger, 60000);
+})();
+async function exporter(L, H, nom) {
+  const b = await rendreExport(L, H), a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = nom; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+}
+document.getElementById('exp45').onclick = () => exporter(1080, 1350, 'bereshit-the-city-is-lighting-up-4x5.png');
+document.getElementById('exp916').onclick = () => exporter(1080, 1920, 'bereshit-the-city-is-lighting-up-9x16.png');
+document.getElementById('projeter').onclick = async () => { document.body.classList.add('projection'); try { await document.getElementById('cadre').requestFullscreen(); } catch (e) {} rendreEcran(); };
+document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { document.body.classList.remove('projection'); rendreEcran(); } });
+let attente; window.addEventListener('resize', () => { clearTimeout(attente); attente = setTimeout(rendreEcran, 120); });
+</script>
+</body>
+</html>

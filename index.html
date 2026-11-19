@@ -116,6 +116,15 @@ p{margin:0 0 14px}
 .amene .bouton{margin-top:20px}
 .etat{min-height:1.4em;color:var(--cendre);font-size:14px;margin:10px 0 0}
 
+
+/* allume ton quartier */
+.allume{border:1px solid var(--bord);border-radius:16px;padding:22px 18px;background:var(--graphite)}
+.allume label{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--cendre);margin:14px 0 6px}
+.allume input,.allume select{width:100%;min-height:52px;border-radius:12px;border:1px solid #3a3636;background:#0f0f0f;
+  color:var(--frost);font:inherit;font-size:17px;padding:0 14px}
+.allume .bouton{width:100%;margin-top:18px}
+.allume .ok{margin-top:14px;font-weight:600}
+.lienville{display:inline-block;margin-top:10px;color:var(--frost)}
 blockquote{margin:0;padding:22px 0;text-align:center;font-style:italic;font-size:19px}
 blockquote cite{display:block;font-style:normal;font-size:12px;letter-spacing:.22em;
   text-transform:uppercase;color:var(--cendre);margin-top:8px}
@@ -138,6 +147,7 @@ footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--bord);text-al
   <p class="invite">Seven days of worship, the Word and prayer.<br><strong>You're invited.</strong></p>
   <div class="actions">
     <a class="bouton plein" href="#where">How to get here</a>
+    <a class="bouton" href="#light">I&rsquo;m coming: light my neighbourhood</a>
     <a class="bouton" href="bereshit-7.ics" download>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       Add to my calendar</a>
@@ -210,6 +220,25 @@ footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--bord);text-al
   </div>
 </section>
 
+<section id="light">
+  <h2>Light your neighbourhood</h2>
+  <p>Are you coming? Tell us which part of Calgary you're coming from, and watch the city light up.
+     <span class="discret">Only the neighbourhood is recorded, never your name.</span></p>
+  <form class="allume" id="formAllume" novalidate>
+    <label for="quartier">Your neighbourhood</label>
+    <input id="quartier" list="quartiers" placeholder="Start typing, e.g. Saddle Ridge" autocomplete="off" required>
+    <datalist id="quartiers"></datalist>
+    <label for="combien">How many are coming?</label>
+    <select id="combien">
+      <option value="1">Just me</option><option value="2">2 of us</option><option value="3">3 of us</option>
+      <option value="4">4 of us</option><option value="5">5 of us</option><option value="6">6 or more</option>
+    </select>
+    <button class="bouton plein" id="allumer" type="submit">Light it</button>
+    <p class="etat ok" id="etatAllume" role="status"></p>
+  </form>
+  <a class="lienville" href="ville.html">See the city light up &rarr;</a>
+</section>
+
 <section>
   <div class="amene">
     <img class="fl" src="flamme.svg" alt="">
@@ -223,6 +252,31 @@ footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--bord);text-al
 <footer>BERESHIT 7 · A City on the Hill<br>January 4 — 10, 2027<br>Metanoia City Church · Calgary, Alberta</footer>
 </main>
 <script>
+
+// Allumer son quartier : la reponse part dans un Google Form (sans compte),
+// la carte lit la feuille publiee. Seul le CODE du quartier est envoye.
+const FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSee9Kdi-iQxhEe22wfaZ_QT_rffQaVOUkXTQNmVGMky8_rVsg/formResponse';
+const QUARTIERS = new Map();
+fetch('carte.json').then(r => r.json()).then(c => {
+  const dl = document.getElementById('quartiers');
+  for (const q of c.q.filter(q => q.k === 'Residential').sort((a, b) => a.n.localeCompare(b.n))) {
+    QUARTIERS.set(q.n.toLowerCase(), q); const o = document.createElement('option'); o.value = q.n; dl.append(o);
+  }
+}).catch(() => {});
+document.getElementById('formAllume').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const etat = document.getElementById('etatAllume'), b = document.getElementById('allumer');
+  const q = QUARTIERS.get(document.getElementById('quartier').value.trim().toLowerCase());
+  if (!q) { etat.textContent = 'Pick your neighbourhood from the list that appears as you type.'; return; }
+  b.disabled = true;
+  const corps = new URLSearchParams({'entry.530975785': q.c, 'entry.39913694': document.getElementById('combien').value});
+  try {
+    await fetch(FORM, {method: 'POST', mode: 'no-cors', body: corps});
+    etat.textContent = q.n + ' is lit. Thank you, see you on January 4!';
+    b.textContent = 'Lit \u2713';
+  } catch (e) { etat.textContent = 'That did not go through. Check your connection and try again.'; b.disabled = false; }
+});
+
 // Partager : la feuille de partage du téléphone, sinon copier le lien.
 document.getElementById('partager').addEventListener('click', async () => {
   const etat = document.getElementById('etat');
