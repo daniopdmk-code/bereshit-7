@@ -1,0 +1,14 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Metanoia City Church//BERESHIT 7//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:bereshit-7-2027@metanoiacitychurch
+DTSTAMP:20261118T000000Z
+DTSTART;VALUE=DATE:20270104
+DTEND;VALUE=DATE:20270111
+SUMMARY:BERESHIT 7 — A City on the Hill
+LOCATION:Metanoia City Church\, 2915 19th Street NE\, 2nd Floor\, Unit 204\, Calgary\, AB T2E 7A2
+DESCRIPTION:Seven days. Monday to Saturday at 7 PM\, Sunday at 10 AM (Mountain Time). Park behind the building\, use the back door\, take the stairs to the 2nd floor.
+END:VEVENT
+END:VCALENDAR

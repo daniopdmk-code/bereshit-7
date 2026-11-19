@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BERESHIT 7 — A City on the Hill · January 4–10, 2027</title>
+<meta name="description" content="Seven days of fire in Calgary. January 4–10, 2027 at Metanoia City Church. You're invited — bring someone.">
+<meta property="og:title" content="BERESHIT 7 — A City on the Hill">
+<meta property="og:description" content="January 4–10, 2027 · Metanoia City Church · Calgary. You're invited.">
+<meta name="theme-color" content="#0C0C0C">
+<link rel="icon" href="flamme.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800&family=Montserrat:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* BERESHIT a sa propre marque : jet, crimson, frost. Le crimson ne porte
+   jamais de texte (4,76:1 sur le jet) — il accentue : filets, flamme, 7. */
+:root{--jet:#0C0C0C;--graphite:#151515;--bord:#2a2a2a;--crimson:#ED3237;
+  --frost:#F5F6F1;--cendre:#B4B4AE;--titre:'Exo 2','Helvetica Neue',sans-serif;
+  --courant:'Montserrat','Helvetica Neue',sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--jet);color:var(--frost);font-family:var(--courant);
+  font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.trame{position:fixed;inset:0;pointer-events:none;opacity:.05;
+  background-image:repeating-linear-gradient(45deg,var(--frost) 0 1px,transparent 1px 11px)}
+main{position:relative;max-width:640px;margin:0 auto;
+  padding:0 max(20px,env(safe-area-inset-right)) 80px max(20px,env(safe-area-inset-left))}
+h1,h2,h3,.exo{font-family:var(--titre);font-weight:800;text-transform:uppercase;
+  letter-spacing:.12em;text-wrap:balance;margin:0}
+a{color:var(--frost)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--crimson);outline-offset:3px}
+.filet{width:64px;height:2px;background:var(--crimson);border:0;margin:22px auto}
+
+/* l'en-tête */
+header{text-align:center;padding:64px 0 8px}
+header .marque{width:min(420px,84%);display:block;margin:0 auto 22px}
+header h1{font-size:clamp(22px,6.4vw,32px)}
+.dates{font-family:var(--titre);font-weight:800;font-size:clamp(17px,4.8vw,22px);
+  letter-spacing:.14em;margin:10px 0 4px}
+.lieu{color:var(--cendre);font-size:13px;letter-spacing:.2em;text-transform:uppercase}
+.invite{font-size:19px;margin:26px auto 0;max-width:30ch}
+.actions{display:flex;flex-direction:column;gap:12px;margin:30px 0 8px}
+.bouton{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;
+  border-radius:999px;font-family:var(--titre);font-weight:800;font-size:14px;
+  letter-spacing:.16em;text-transform:uppercase;text-decoration:none;cursor:pointer;
+  border:1px solid #444;background:var(--graphite);color:var(--frost)}
+.bouton.plein{background:var(--frost);color:var(--jet);border-color:var(--frost)}
+.bouton svg{width:18px;height:18px;flex:none}
+
+figure{margin:36px -20px 0}
+figure img{display:block;width:100%;height:auto}
+
+section{padding-top:56px}
+section>h2{font-size:15px;letter-spacing:.24em;color:var(--frost);display:flex;
+  align-items:center;gap:12px;margin-bottom:20px}
+section>h2::before{content:"";width:22px;height:2px;background:var(--crimson);flex:none}
+p{margin:0 0 14px}
+.discret{color:var(--cendre);font-size:15px}
+
+/* les sept jours */
+.jours{list-style:none;padding:0;margin:0;border-top:1px solid var(--bord)}
+.jours li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:13px 2px;border-bottom:1px solid var(--bord)}
+.jours .j{font-family:var(--titre);font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  font-size:15px}
+.jours .j small{display:block;font-family:var(--courant);font-weight:500;letter-spacing:.04em;
+  text-transform:none;color:var(--cendre);font-size:13px}
+.jours .h{font-family:var(--titre);font-weight:600;letter-spacing:.08em;font-size:16px;
+  white-space:nowrap}
+.jours li.dim .h::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--crimson);margin-left:8px;vertical-align:middle}
+
+/* le lieu */
+.adresse{font-style:normal;font-size:18px;line-height:1.5;margin-bottom:18px}
+.adresse strong{font-family:var(--titre);letter-spacing:.06em}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:26px}
+.duo .bouton{min-height:50px;font-size:12px;letter-spacing:.12em}
+.etapes{list-style:none;padding:0;margin:0 0 22px;counter-reset:e}
+.etapes li{counter-increment:e;position:relative;padding:0 0 18px 46px}
+.etapes li::before{content:counter(e);position:absolute;left:0;top:-2px;width:30px;height:30px;
+  border:1px solid #555;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--titre);font-weight:800;font-size:13px}
+.etapes li:not(:last-child)::after{content:"";position:absolute;left:15px;top:32px;bottom:2px;
+  width:1px;background:#444}
+.etapes li:last-child::before{border-color:var(--crimson)}
+.etapes b{font-family:var(--titre);letter-spacing:.06em;text-transform:uppercase;font-size:15px}
+.media{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.media video,.media img{width:100%;height:auto;display:block;border-radius:10px;
+  border:1px solid var(--bord);background:#000}
+
+/* une soirée */
+.moments{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.moment{border:1px solid var(--bord);border-radius:12px;padding:16px;background:var(--graphite)}
+.moment h3{font-size:14px;letter-spacing:.14em;margin-bottom:4px}
+.moment p{margin:0;color:var(--cendre);font-size:14px}
+.moment:last-child{border-color:#5a2224}
+
+/* qui */
+.hote{border:1px solid var(--bord);border-radius:12px;padding:18px;background:var(--graphite)}
+.hote .role{color:var(--cendre);font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.hote .nom{font-family:var(--titre);font-weight:800;font-size:20px;letter-spacing:.08em;
+  text-transform:uppercase;margin:2px 0 0}
+
+/* le direct */
+.reseaux{display:flex;flex-direction:column;gap:10px}
+.reseaux .bouton{justify-content:flex-start;padding:0 22px;letter-spacing:.1em;font-size:13px}
+.reseaux .bouton span{margin-left:auto;font-family:var(--courant);font-weight:500;
+  letter-spacing:.02em;text-transform:none;color:var(--cendre)}
+
+/* amène quelqu'un */
+.amene{text-align:center;border:1px solid #5a2224;border-radius:16px;padding:30px 20px;
+  background:linear-gradient(180deg,#1a0f10,var(--graphite))}
+.amene .fl{width:34px;margin:0 auto 12px;display:block}
+.amene h2{font-size:clamp(22px,6vw,28px);letter-spacing:.1em;margin-bottom:10px}
+.amene .bouton{margin-top:20px}
+.etat{min-height:1.4em;color:var(--cendre);font-size:14px;margin:10px 0 0}
+
+blockquote{margin:0;padding:22px 0;text-align:center;font-style:italic;font-size:19px}
+blockquote cite{display:block;font-style:normal;font-size:12px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--cendre);margin-top:8px}
+
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--bord);text-align:center;
+  color:var(--cendre);font-size:12px;letter-spacing:.16em;text-transform:uppercase;line-height:1.9}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="trame"></div>
+<main>
+
+<header>
+  <img class="marque" src="logo.svg" alt="BERESHIT 7">
+  <h1>A City on the Hill</h1>
+  <p class="dates">JANUARY 4 — 10, 2027</p>
+  <p class="lieu">Metanoia City Church · Calgary</p>
+  <hr class="filet">
+  <p class="invite">Seven days of worship, the Word and prayer.<br><strong>You're invited.</strong></p>
+  <div class="actions">
+    <a class="bouton plein" href="#where">How to get here</a>
+    <a class="bouton" href="bereshit-7.ics" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      Add to my calendar</a>
+  </div>
+</header>
+
+<blockquote style="margin-top:30px">“A city that is set on an hill cannot be hid.”<cite>Matthew 5:14</cite></blockquote>
+
+<section id="when">
+  <h2>When</h2>
+  <ul class="jours">
+    <li><span class="j">Monday<small>January 4</small></span><span class="h">7:00 PM</span></li>
+    <li><span class="j">Tuesday<small>January 5</small></span><span class="h">7:00 PM</span></li>
+    <li><span class="j">Wednesday<small>January 6</small></span><span class="h">7:00 PM</span></li>
+    <li><span class="j">Thursday<small>January 7</small></span><span class="h">7:00 PM</span></li>
+    <li><span class="j">Friday<small>January 8</small></span><span class="h">7:00 PM</span></li>
+    <li><span class="j">Saturday<small>January 9</small></span><span class="h">7:00 PM</span></li>
+    <li class="dim"><span class="j">Sunday<small>January 10</small></span><span class="h">10:00 AM</span></li>
+  </ul>
+  <p class="discret" style="margin-top:12px">Mountain Time. Come any night — or all seven.</p>
+</section>
+
+<section id="where">
+  <h2>Where</h2>
+  <address class="adresse"><strong>Metanoia City Church</strong><br>
+    2915 19th Street NE<br>2nd Floor, Unit 204<br>Calgary, AB T2E 7A2</address>
+  <div class="duo">
+    <a class="bouton" href="https://www.google.com/maps/search/?api=1&amp;query=2915+19th+Street+NE+Calgary+AB+T2E+7A2" target="_blank" rel="noopener">Google Maps</a>
+    <a class="bouton" href="https://maps.apple.com/?q=2915+19th+Street+NE,+Calgary,+AB+T2E+7A2" target="_blank" rel="noopener">Apple Maps</a>
+  </div>
+  <ol class="etapes">
+    <li><b>Deerfoot Trail</b><br>Take exit 260, 32 Ave NE.</li>
+    <li><b>32 Ave NE</b><br>Head east for about 1.6 km.</li>
+    <li><b>19 St NE</b><br>Turn south for about 350 m.</li>
+    <li><b>Park behind the building</b><br>The entrance is at the back, on the parking side — not on the street.</li>
+    <li><b>Take the stairs</b><br>Up to the 2nd floor, Unit 204. There is no elevator. Someone will welcome you outside.</li>
+  </ol>
+  <div class="media">
+    <video src="route.mp4" poster="route-affiche.jpg" controls playsinline preload="none" aria-label="The route from Deerfoot Trail to the door"></video>
+    <img src="porte.jpg" alt="Diagram: park behind the building, back door, stairs to Unit 204" loading="lazy">
+  </div>
+</section>
+
+<section id="expect">
+  <h2>What to expect</h2>
+  <div class="moments">
+    <div class="moment"><h3>Welcome</h3><p>Come as you are.</p></div>
+    <div class="moment"><h3>Worship</h3><p>We sing together.</p></div>
+    <div class="moment"><h3>The Word</h3><p>The Bible, opened.</p></div>
+    <div class="moment"><h3>Prayer</h3><p>We respond.</p></div>
+  </div>
+</section>
+
+<section id="who">
+  <h2>Who</h2>
+  <div class="hote">
+    <div class="role">Host</div>
+    <p class="nom">Prophet Daniel Mwamba</p>
+  </div>
+  <p class="discret" style="margin-top:14px">Guest speakers will be announced soon.</p>
+</section>
+
+<section id="live">
+  <h2>Can't be there?</h2>
+  <p>Every night is live.</p>
+  <div class="reseaux">
+    <a class="bouton" href="https://www.youtube.com/@Metacitychurch" target="_blank" rel="noopener">YouTube <span>@Metacitychurch</span></a>
+    <a class="bouton" href="https://www.instagram.com/danielmwambakal/" target="_blank" rel="noopener">Instagram <span>@danielmwambakal</span></a>
+    <div class="bouton" style="cursor:default">Facebook <span>Metanoia City Church</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="amene">
+    <img class="fl" src="flamme.svg" alt="">
+    <h2>Bring the fire.<br>Bring someone.</h2>
+    <p class="discret" style="margin:0">Who will you bring? Send them this page.</p>
+    <button class="bouton plein" id="partager" type="button" style="width:100%">Share this invitation</button>
+    <p class="etat" id="etat" role="status"></p>
+  </div>
+</section>
+
+<footer>BERESHIT 7 · A City on the Hill<br>January 4 — 10, 2027<br>Metanoia City Church · Calgary, Alberta</footer>
+</main>
+<script>
+// Partager : la feuille de partage du téléphone, sinon copier le lien.
+document.getElementById('partager').addEventListener('click', async () => {
+  const etat = document.getElementById('etat');
+  const donnees = {title: 'BERESHIT 7 — A City on the Hill',
+    text: 'January 4–10, 2027 in Calgary. Come with me?', url: location.href};
+  try {
+    if (navigator.share) { await navigator.share(donnees); return; }
+    await navigator.clipboard.writeText(location.href);
+    etat.textContent = 'Link copied — paste it in a message.';
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    etat.textContent = 'Copy this link: ' + location.href;
+  }
+});
+</script>
+</body>
+</html>
