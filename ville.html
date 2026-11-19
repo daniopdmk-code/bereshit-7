@@ -180,7 +180,7 @@ async function charger() {
     }
     if (!r || !r.ok) throw new Error('csv');
     compte = lireCSV(await r.text());
-    etat.textContent = compte.size ? 'Updated ' + new Date().toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '. New lights can take a few minutes to appear.' : 'The city is still dark. Be the first light.';
+    etat.textContent = compte.size ? 'Updated ' + new Date().toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) + '. A new light takes about five minutes to appear.' : 'The city is still dark. Be the first light — a new light takes about five minutes to appear.';
   } catch (e) { etat.textContent = 'The lights could not be loaded right now. Try again in a moment.'; }
   afficher();
 }

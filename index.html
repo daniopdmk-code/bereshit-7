@@ -272,7 +272,7 @@ document.getElementById('formAllume').addEventListener('submit', async ev => {
   const corps = new URLSearchParams({'entry.530975785': q.c, 'entry.39913694': document.getElementById('combien').value});
   try {
     await fetch(FORM, {method: 'POST', mode: 'no-cors', body: corps});
-    etat.textContent = q.n + ' is lit. Thank you, see you on January 4!';
+    etat.textContent = q.n + ' is lit. It will glow on the map in about five minutes. See you on January 4!';
     b.textContent = 'Lit \u2713';
   } catch (e) { etat.textContent = 'That did not go through. Check your connection and try again.'; b.disabled = false; }
 });
